@@ -167,3 +167,136 @@ public class MainGame extends Application {
         };
         linearTimer.schedule(increaseBalls, 1000, 1000);
     }
+
+    private static Button getStartButton() {
+        return new Button("START");
+    }
+
+    private static Button getReStartButton() {
+        return new Button("TRY AGAIN");
+    }
+
+    private static Label instructions(String text) {
+
+        Label label = new Label(text);
+        label.setTextFill(Color.WHITE);
+        label.setStyle("-fx-font-weight:bold");
+
+        return label;
+    }
+
+    private Parent createEntryContent() {
+        Pane entryRoot = new Pane();
+        entryRoot.setPrefSize(600, 600);
+
+        VBox box = new VBox();
+        box.setTranslateX(128.5);
+        box.setTranslateY(100);
+        box.setAlignment(Pos.CENTER);
+
+        ImageView title = new ImageView(new Image("./assets/BE.png"));
+
+        Label shiftLeft = instructions("PRESS RIGHT ARROW TO MOVE STRIKER RIGHT");
+        Label shiftRight = instructions("PRESS LEFT ARROW TO MOVE STRIKER LEFT");
+        Label signalFire = instructions("PRESS X TO SHOOT ONE BALL");
+        Label doubleFire = instructions("PRESS Z TO SHOOT TWO BALLS");
+        box.getChildren().addAll(title, shiftLeft, shiftRight, signalFire, doubleFire);
+
+
+        String line1 = ("Group Members:");
+        String line2 = ("Eshan Raikar");
+        String line3 = ("Anuar Aitkali");
+        String line4 = ("Takshil Patel");
+        String line5 = ("Ayaan Shirazi");
+        Label author = instructions(line1 + "\n" + line2 + "\n" + line3 + "\n" + line4 + "\n" + line5);
+        author.setStyle("-fx-font-weight: bold");
+        author.setTextFill(Color.BLACK); //check the colour
+        VBox desc = new VBox();
+        desc.setTranslateX(20);
+        desc.setTranslateY(500);
+        desc.setAlignment(Pos.CENTER);
+        desc.getChildren().add(author);
+
+        // start button
+        Button start = getStartButton();
+        start.setTranslateX(235);
+        start.setTranslateY(380);
+        start.setStyle("-fx-font-weight: bold");
+        start.setCursor(Cursor.HAND);
+        start.setOnAction((ActionEvent d) -> gameStart());
+
+        // create background image
+        BackgroundImage bg = getBackground();
+
+        gamePane = new Pane();
+        gamePane.setPrefSize(600, 700);
+        gamePane.setBackground(new Background(bg));
+        gamePane.setTranslateX(0);
+        gamePane.setTranslateY(0);
+
+        entryRoot.getChildren().addAll(gamePane, box, start, desc);
+
+        Media music = new Media(new File("./src/assets/8bit.mp3").toURI().toString());
+        IntroSound = new MediaPlayer(music);
+        IntroSound.setAutoPlay(true);
+        IntroSound.setOnEndOfMedia(new Runnable() {
+            @Override
+            public void run() {
+                IntroSound.seek(Duration.ZERO);
+            }
+        });
+
+        return entryRoot;
+    }
+
+    private static Parent gameObjects() {
+        gameRoot = new Pane();
+        gameRoot.setPrefSize(600, 600);
+
+        // create background image
+        BackgroundImage bg = getBackground();
+
+        gamePane = new Pane();
+        gamePane.setPrefSize(600, 3600);
+        gamePane.setBackground(new Background(bg));
+        gamePane.setTranslateX(0);
+        gamePane.setTranslateY(-3000);
+
+        //Balls tab is set to null and the height and width are set
+        ballsLabel = instructions("");
+        Game.updateBallsLabel();
+        ballsLabel.setTranslateX(520);
+        ballsLabel.setTranslateY(570);
+
+        //Score is set to null and the height and width are set
+        scoreLabel = instructions("");
+        Game.updateScoreLabel();
+        scoreLabel.setTranslateX(20);
+        scoreLabel.setTranslateY(570);
+
+
+        //setting the height and width of the XP rectangle
+        Game.xpPane.setTranslateX(180);
+        Game.xpPane.setTranslateY(572);
+
+        gameRoot.getChildren().addAll(gamePane, ballsLabel, Game.xpPane, scoreLabel);
+
+        salah = new Player();
+        salah.setVelocity(new Point2D(1, 0));
+        salah.setWidth(64); // width of space ship image
+        addGameObject(salah, 268, 480);
+
+        IntroSound.setVolume(.2);
+
+        timer = new AnimationTimer() {
+            @Override
+            public void handle(long now) {
+                onUpdate();
+            }
+        };
+        timer.start();
+
+        Game.start(); // signal to inform receivers the game is status
+
+        return gameRoot;
+    }
